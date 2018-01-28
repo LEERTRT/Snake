@@ -39,10 +39,21 @@
 <script>
     function Game (id) {
 
-
+        /**
+         * 初始化函数，生成构造函数实例后调用此函数
+         */
         this.init = function () {
+            /**
+             * 初始化画布和果实
+             */
             this.initData();
+            /**
+             * 1.清空画布；2.画背景格子；3.画蛇；4.画果实
+             */
             this.draw();
+            /**
+             * 绑定事件：方向和速度控制
+             */
             this.bindEvents();
         };
 
@@ -52,14 +63,14 @@
             if (canvas && canvas.getContext) {
                 this.ctx = canvas.getContext('2d');
             }
-            this.foodNode = null;
-            this.size = canvas.width || $(canvas).width();
-            this.columns = 50;
-            this.direction = 0;
-            this.speed = 10;
-            this.bodyNodes = [];
+            this.foodNode = null;//果实
+            this.size = canvas.width || $(canvas).width();//画布大小
+            this.columns = 50;//画布行列数
+            this.direction = 0;//方向
+            this.speed = 10;//速度
+            this.bodyNodes = [];//蛇体
 
-
+            //随机生成蛇位置
             var rdx = Math.round(Math.random() * (this.columns - 1));
             var rdy = Math.round(Math.random() * (this.columns - 1));
 
@@ -71,9 +82,21 @@
 
 
         this.draw = function () {
+            /**
+             * 清空画布
+             */
             this.clear();
+            /**
+             * 画画布
+             */
             this.drawBG();
+            /**
+             * 画蛇体
+             */
             this.drawBody();
+            /**
+             *画果实
+             */
             this.drawFood();
         };
 
@@ -85,10 +108,9 @@
 
         this.drawBG = function () {
             var _this = this;
-
-
             var x = 0, y = 0, size = _this.size / _this.columns;
             _this.ctx.strokeStyle = "rgba(124,124,124,0.1)";
+            //一行一行画画布
             for (var i = 0; i < _this.columns; i++) {
                 y = i * size;
                 for (var j = 0; j < _this.columns; j++) {
@@ -128,7 +150,7 @@
                 var rdx = Math.round(Math.random() * (_this.columns - 1));
                 var rdy = Math.round(Math.random() * (_this.columns - 1));
 
-
+               //如果果实重新出现的位置和蛇体重合，重画果实
                 if (_this.Utils.contains(_this.bodyNodes, {x: rdx, y: rdy})) {
                     _this.drawFood();
                 } else {
@@ -149,7 +171,7 @@
             var _this = this;
             document.body.onkeydown = function (e) {
                 switch (e.keyCode) {
-                    case 37: // 左
+                    case 37: // 左, 1表示右，即当蛇向右行时，按左键不能改变方向，下面同理
                         if (_this.direction == 1) return;
                         _this.direction = -1;
                         break;
@@ -225,8 +247,9 @@
                 }
             }
             else {
-                _this.bodyNodes.pop();
-                _this.bodyNodes.unshift(node);
+                //移动
+                _this.bodyNodes.pop();//删除数组最后一个元素
+                _this.bodyNodes.unshift(node);//向数组的开头添加一个或更多元素，并返回新的长度。
 
 
                 _this.food();
@@ -238,12 +261,13 @@
         this.food = function () {
             var _this = this;
             var headNode = _this.bodyNodes[0];
+            //吃到果实
             if (_this.Utils.equals(headNode, _this.foodNode)) {
-                _this.bodyNodes.push(_this.foodNode);
+                _this.bodyNodes.push(_this.foodNode);//push()方法可向数组的末尾添加一个或多个元素，并返回新的长度。
                 _this.foodNode = null;
                 var score = _this.bodyNodes.length - 1;
                 $('#score').text(score);
-                if (score % 10 == 0) {
+                if (score % 10 == 0) {//加速提高难度
                     _this.speed += 10;
                     _this.timerController();
                 }
